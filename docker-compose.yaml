@@ -1,0 +1,54 @@
+version: '3.3'
+services:
+
+  web_application:
+    container_name: web_application
+    build:
+      context: ./web_application
+    command: bash -c "python3 manage.py makemigrations master_diabet && python3 manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./web_application/:/web_application/
+    restart: always
+    networks:
+      - nginx_frontend
+    ports:
+      - "8000:8000"
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "2"
+    depends_on:
+      - database
+
+  database:
+    build:
+      context: ./database
+    container_name: database
+    restart: always
+    networks:
+      - nginx_frontend
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "2"
+    volumes:
+      - master_diabet_database:/var/lib/postgres
+      - ./database/backup/:/var/lib/postgresql/backup
+
+volumes:
+  master_diabet_database:
+
+networks:
+  nginx_frontend:
+    external: true
+
+# networks:
+#   frontend:
+#     ipam:
+#       driver: default
+#       config:
+#         - subnet: 192.0.0.80/28
+
+# docker network create -d bridge nginx_frontend

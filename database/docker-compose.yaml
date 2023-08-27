@@ -1,0 +1,25 @@
+version: '3.3'
+services:
+
+  database:
+    build:
+      context: ./database
+    container_name: database
+    restart: always
+    networks:
+      - docker_nginx_frontend
+    logging:
+      driver: json-file
+      options:
+        max-size: "100m"
+        max-file: "2"
+    volumes:
+      - master_diabet_database:/var/lib/postgres
+      - ./database/backup/:/var/lib/postgresql/backup
+
+volumes:
+  master_diabet_database:
+
+networks:
+  docker_nginx_frontend:
+    external: true
